@@ -1,20 +1,90 @@
-# Autonomous Crawler Research
-An Arduino-powered crawler designed for precision movement using sensor-based feedback loops.
+# Sensor-Fusion Autonomous Crawler Robot
 
-## 🛠 Features & Sensors
-This research focuses on transitioning from simple time-based movement to high-precision autonomous navigation using real-time sensor feedback.
+An embedded mechatronics system featuring sensor-guided autonomous navigation, dynamic obstacle avoidance, and dynamic trajectory correction using C++ on microcontrollers.
 
-* **Gyroscope (SK-Gyro):** Utilizes a Voltage Oscillation Gyro Module to monitor angular velocity. This allows the crawler to maintain a perfectly straight heading and execute exact 90-degree turns by integrating rotation data.
-* **Photo-Interrupters:** Integrated copier sensors (on Pin 11) acting as wheel encoders. These count physical wheel revolutions to calculate exact distance traveled, independent of motor speed fluctuations.
-* **Correction Logic:** The system uses a proportional control loop to compare the current gyro heading against the target heading, dynamically adjusting motor PWM values to stay on track.
+---
 
-## 🕹 Logic Commands
-The code is structured with modular functions for easy control:
-- `moveForward(distance, speed)`: Uses the Photo-Interrupter to measure distance and the Gyro to stay straight.
-- `rotateRight(angle)`: Rotates the chassis until the Gyro sensor confirms the target angle is reached.
-- `getGyroHeading()`: Performs the math to convert raw voltage into a readable degree of rotation.
+## Technical Overview
 
-## 📂 Project Structure
-- `crawler_main.ino`: The main control script containing sensor integration and movement logic.
-- `LICENSE`: MIT Open Source license.
+* **Closed-Loop Motion Control**: Real-time yaw correction and angular velocity tracking via MPU-6050 6-DOF IMU integration.
+* **Proximity Polling**: Dual-photoelectric/infrared sensors for edge detection and collision avoidance.
+* **Modular Firmware Architecture**: Clean separation of sensor driver subroutines, motor control, and state machine loops.
+
+---
+
+## Hardware Architecture & Bill of Materials
+
+| Component | Specification / Model | Function | Interface / Protocol |
+| --- | --- | --- | --- |
+| Microcontroller | ATmega328P / Arduino Uno | Core execution loop & sensor polling | GPIO / PWM / I2C |
+| Orientation Sensor | MPU-6050 (Gyro + Accelerometer) | Yaw detection & trajectory tracking | I2C (`0x68`) |
+| Edge / Proximity Sensors | Dual Photoelectric / IR Modules | Boundary detection & obstacle avoidance | Digital GPIO Interrupts |
+| Motor Driver | L298N Dual H-Bridge | PWM track drive motor control | Digital / PWM |
+| Chassis | Custom Track-Drive System | Differential steering & multi-terrain drive | Mechanical |
+
+---
+
+## Firmware Directory Structure
+
+```text
+sensor-fusion-crawler-robot/
+├── docs/                 # Hardware schematics, wiring pinouts, and system specs
+│   └── pinout.md         # Microcontroller-to-sensor pin mapping
+├── firmware/             # Embedded C++ / Arduino source files
+│   └── crawler_main.ino  # Main control loop & state machine logic
+├── LICENSE               # Open-source license (MIT)
+└── README.md             # Technical documentation & project specification
+
+```
+
+---
+
+## System Block Diagram
+
+```text
+  ┌─────────────────────────────┐        ┌──────────────────────────────┐
+  │  MPU-6050 Gyro / Accelerometer  │        │ Dual Photoelectric / IR Sensors │
+  └──────────────┬──────────────┘        └──────────────┬───────────────┘
+                 │ I2C Signals                          │ Digital Logic Pins
+                 ▼                                      ▼
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │                     ATmega328P Microcontroller                       │
+  │                  (C++ State Machine & Controller)                   │
+  └──────────────────────────────────┬──────────────────────────────────┘
+                                     │ PWM Duty Cycle / Direction Logic
+                                     ▼
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │                        L298N Motor Driver                           │
+  └──────────────────────────────────┬──────────────────────────────────┘
+                                     │ High-Current Drive
+                                     ▼
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │                   Dual-Track Crawler Mechanism                      │
+  └──────────────────────────────────┬──────────────────────────────────┘
+
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+* Arduino IDE 2.0+ or PlatformIO Core
+* AVR Board Support Packages
+
+### Build & Flash
+
+1. Clone the repository:
+```bash
+git clone [https://github.com/sach7742/sensor-fusion-crawler-robot.git](https://github.com/sach7742/sensor-fusion-crawler-robot.git)
+cd sensor-fusion-crawler-robot
+
+```
+
+
+2. Open `firmware/crawler_main.ino` in your IDE.
+3. Target your board (e.g., Arduino Uno) and compile/upload.
+
+```
 
